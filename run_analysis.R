@@ -21,8 +21,8 @@ library("data.table")
 ###########################
 
 # 0.1 & 0.2: Download the data and extract it
-#download.file("https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip", "dirty.zip")
-#unzip("dirty.zip", exdir="dirty")
+download.file("https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip", "dirty.zip")
+unzip("dirty.zip", exdir="dirty")
 
 ###########################
 
