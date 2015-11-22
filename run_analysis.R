@@ -43,6 +43,8 @@ yTrain <- read.table(paste(trainingDir, "/Y_train.txt", sep = ""))
 xTest <- read.table(paste(testDir, "/X_test.txt", sep=""))
 yTest <- read.table(paste(testDir, "/Y_test.txt", sep=""))
 
+###########################
+
 # 4. Relabel the data. It's better to do it now than later.
 # 4.1 Read in the label names. These are found in file called features.txt
 dirtyRootDir <- "./dirty/UCI\ HAR\ Dataset"
@@ -52,4 +54,24 @@ labelNames <- labelNames[,2]
 # 4.2 Execute relabeling
 names(xTrain) <- labelNames
 names(xTest) <- labelNames
+
+###########################
+
+# 3. Use descriptive activity names
+# 3.1 Read in activity names. They're found in activity_labels.txt
+activityNames <- read.table(paste(dirtyRootDir, "/activity_labels.txt", sep=""))
+# 3.1.1 Again, as with the other labels, names are in the second column so we only take interest in that
+activityNames <- activityNames[,2]
+# 3.2 Set the names to y-data as a new column
+key <- yTrain[, 1]
+yTrain[, 2] <- activityNames[key]
+key <- yTest[, 1]
+yTest[, 2] <- activityNames[key]
+# 3.3 Y-data is still missing column labels so let's set those by hand
+names(yTrain) <- c("ActivityID", "ActivityName")
+names(yTest) <- c("ActivityID", "ActivityName")
+
+###########################
+
+
 
