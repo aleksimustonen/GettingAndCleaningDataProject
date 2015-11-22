@@ -19,27 +19,27 @@ library("data.table")
 
 ###########################
 
-# Steps 0.1 & 0.2: Download the data and extract it
-download.file("https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip", "dirty.zip")
-unzip("dirty.zip", exdir="dirty")
+# 0.1 & 0.2: Download the data and extract it
+#download.file("https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip", "dirty.zip")
+#unzip("dirty.zip", exdir="dirty")
 
 ###########################
 
-# Step 1. Data merging
+# 0.3. Data reading
 # Dirty data is organized in a hierarchical directory structure with multiple files. 
 # Traversing the directory structure programmatically is not within the scope of this assignment.
 
-# 1.1 List the files, just to take a look
+# 0.3.1 List the files, just to take a look
 trainingDir <- "./dirty/UCI\ HAR\ Dataset/train"
 testDir <- "./dirty/UCI\ HAR\ Dataset/test"
 trainingFiles <- list.files(path = trainingDir)
 testFiles <- list.files(path = testDir)
 
-# 1.2 Read in the training data. This resides in two files: X_train.txt and Y_train.txt
+# 0.3.2 Read in the training data. This resides in two files: X_train.txt and Y_train.txt
 xTrain <- read.table(paste(trainingDir, "/X_train.txt", sep = ""))
 yTrain <- read.table(paste(trainingDir, "/Y_train.txt", sep = ""))
 
-# 1.3 Read in the test data. This resides in two files: X_test.txt and Y_test.txt
+# 0.3.3 Read in the test data. This resides in two files: X_test.txt and Y_test.txt
 xTest <- read.table(paste(testDir, "/X_test.txt", sep=""))
 yTest <- read.table(paste(testDir, "/Y_test.txt", sep=""))
 
@@ -73,5 +73,29 @@ names(yTest) <- c("ActivityID", "ActivityName")
 
 ###########################
 
+# 2. Extract mean and std deviation from data
+# 2.1 For this, we don't need all data so let's simplify. Mark labels containing mean or std.
+labelsSimple <- grepl("mean|std", labelNames)
+# 2.2 Get only marked data.
+xTestSimple <- xTest[, labelsSimple]
+xTrainSimple <- xTrain[, labelsSimple]
+
+###########################
+
+# 1. Data merging
+# Now that we have labeled and simplified (filtered) our data, it is time to get it merged.
+# 1.1 Activities were performed by subjects (individuals). Read in the subject IDs.
+trainingSubjects <- read.table(paste(trainingDir, "/subject_train.txt", sep = ""))
+testSubjects <- read.table(paste(testDir, "/subject_test.txt", sep = ""))
+# 1.2 Column-bind subjects and simplified training data together
+trainingSubjects <- as.data.table(trainingSubjects)
+trainingData <- cbind(trainingSubjects, yTrain, xTrainSimple)
+# 1.2 Column-bind subjects and simplified test data together
+testSubjects <- as.data.table(testSubjects)
+testData <- cbind(testSubjects, yTest, xTestSimple)
+# 1.3 Finally row-bind training data and test data together to create one big simplified dataset
+simplifiedData <- rbind(testData, trainingData)
+
+###########################
 
 
