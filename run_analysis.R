@@ -114,6 +114,6 @@ averagedData = dcast(simplifiedDataMelted, Subject + ActivityName ~ variable, me
 if(!file.exists("./tidy")) {
   dir.create("./tidy")
 }
-write.table(averagedData, file="./tidy/tidyData.txt" )
+write.table(averagedData, file="./tidy/tidyData.txt", row.names = FALSE)
 
 
