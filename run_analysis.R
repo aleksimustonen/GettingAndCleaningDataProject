@@ -1,12 +1,13 @@
 # run_analysis.R / aleksimustonen
 # This file
 # 0.1. Downloads a dirty data set as a ZIP.
-# 0.2. Extract the ZIP. The zip should contain training and test data.
+# 0.2. Extracts the ZIP. The zip should contain training and test data.
+# 0.3. Reads in the data.
 # 1. Merges training and test data together.
-# 2. Extracts mean and standard deviation
+# 2. Extracts fields elated to mean and standard deviation
 # 3. Uses descriptive activity names.
 # 4. Relabels the data.
-# 5. Stores the tidied data. Creates a secondary data set with averaged values.
+# 5. Creates a secondary data set with averaged values.
 
 # Actions listed above follow the numbering given in assignment instructions.
 # However, it makes more sense to execute them in a different order so that's what I did.
@@ -93,9 +94,26 @@ trainingData <- cbind(trainingSubjects, yTrain, xTrainSimple)
 # 1.2 Column-bind subjects and simplified test data together
 testSubjects <- as.data.table(testSubjects)
 testData <- cbind(testSubjects, yTest, xTestSimple)
-# 1.3 Finally row-bind training data and test data together to create one big simplified dataset
+# 1.3 Finally row-bind training data and test data together to create one big dataset
 simplifiedData <- rbind(testData, trainingData)
+# 1.4 Subjects column is still unlabeled. Give it a meaningful name.
+setnames(simplifiedData, "V1", "Subject")
+columnNames <- colnames(simplifiedData)
+# 1.5 Define conditions on which to simplify the dataset and melt it together
+meltBy <- c("Subject", "ActivityID", "ActivityName")
+meltThese <- setdiff(columnNames, meltBy)
+# 1.6 Now melt the data together based on subjects and activities to create a simplified version of the data
+simplifiedDataMelted <- melt(simplifiedData, id=meltBy, measure.vars=meltThese)
 
 ###########################
+
+# 5. Create a dataset with averaged values.
+# 5.1 Calculate the mean
+averagedData = dcast(simplifiedDataMelted, Subject + ActivityName ~ variable, mean)
+# 5.2 Store the result to a file
+if(!file.exists("./tidy")) {
+  dir.create("./tidy")
+}
+write.table(averagedData, file="./tidy/tidyData.txt" )
 
 
